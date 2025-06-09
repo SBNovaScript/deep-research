@@ -3,6 +3,7 @@ from .crawler import WebCrawler
 from .ai_connectors import AIConnector, EchoConnector, OpenAIConnector
 from .summarizer import Summarizer
 from .search_planner import SearchPlanner
+from .google_search import GoogleSearch
 from .citation_manager import CitationManager
 from .report_generator import ReportGenerator
 
@@ -16,6 +17,7 @@ __all__ = [
     "OpenAIConnector",
     "Summarizer",
     "SearchPlanner",
+    "GoogleSearch",
     "CitationManager",
     "ReportGenerator",
 ]

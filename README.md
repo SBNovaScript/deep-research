@@ -76,6 +76,13 @@ with OpenAI:
 export OPENAI_API_KEY=your_key_here
 ```
 
+You will also need credentials for the Google Custom Search API:
+
+```bash
+export GOOGLE_API_KEY=your_google_api_key
+export GOOGLE_CSE_ID=your_search_engine_id
+```
+
 Then start the API with:
 
 ```bash
