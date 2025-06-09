@@ -16,3 +16,15 @@ This repository is structured as a monorepo containing both a web frontend and a
 - Backend API orchestrates data collection and summarization
 
 This project is in an early stage. Future updates will include plug-in submodules for source validation, bias detection, and more automated workflows.
+
+## Frontend Development
+
+The `frontend` folder contains a minimal React application built with Vite and Tailwind CSS. To run it locally:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+This will start a development server at <http://localhost:5173>.
