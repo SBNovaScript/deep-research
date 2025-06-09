@@ -1,0 +1,13 @@
+# Deep Research
+
+This repository contains a custom deep research implementation designed to connect to multiple AI services. It collects data from the web based on a user-provided research topic, analyzes the information with diverse AI models, and produces citation-driven summaries. The system is intended to build a coherent research report that goes beyond normal LLM limitations by planning and summarizing each section strategically.
+
+## Features
+
+- Integration with various AI services (e.g. OpenAI GPT-4o) for summarization and reasoning
+- Website scanning to gather data relevant to a research request
+- Fact-check and bias-check modules to ensure accurate and balanced summaries
+- Expansive research planning that links logical implications across sources
+- Comprehensive, citation-rich reports for any topic
+
+This project is in an early stage. Future updates will include plug-in submodules for source validation, bias detection, and more automated workflows.
