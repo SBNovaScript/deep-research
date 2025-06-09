@@ -9,6 +9,7 @@ from .citation_manager import CitationManager
 from .report_generator import ReportGenerator
 from .validator import Validator
 from .search_planner import SearchPlanner
+from .google_search import GoogleSearch
 
 
 @dataclass
@@ -20,26 +21,29 @@ class ResearchTask:
 tasks: Dict[str, ResearchTask] = {}
 async_tasks: Dict[str, asyncio.Task] = {}
 
-
-async def _run(task_id: str) -> None:
-    task = tasks[task_id]
-    await task.queue.put({"type": "thinking", "text": f"Starting research on '{task.topic}'"})
-
-    crawler = WebCrawler()
-    connector = OpenAIConnector()
-    planner = SearchPlanner(connector)
-    summarizer = Summarizer(connector)
-    validator = Validator(connector)
-    citation_mgr = CitationManager()
-
-    # First AI call: generate search queries
+async def _generate_queries(task: ResearchTask, planner: SearchPlanner) -> List[str]:
     queries = await planner.generate(task.topic)
     for q in queries:
         await task.queue.put({"type": "thinking", "text": q})
+    return queries
 
-    urls = ["https://example.com"]
+
+async def _collect_urls(task: ResearchTask, searcher: GoogleSearch, queries: List[str]) -> List[str]:
+    urls = await searcher.search_all(queries)
     for url in urls:
         await task.queue.put({"type": "search", "url": url})
+    return urls
+
+
+async def _summarize_pages(
+    task_id: str,
+    task: ResearchTask,
+    crawler: WebCrawler,
+    summarizer: Summarizer,
+    validator: Validator,
+    citation_mgr: CitationManager,
+    urls: List[str],
+) -> List[str]:
     pages = await crawler.crawl(task_id, urls)
     summaries: List[str] = []
     for url, text in pages:
@@ -50,9 +54,28 @@ async def _run(task_id: str) -> None:
         bias_check = await validator.bias_check(summary)
         combined = f"{summary}\n\nFact Check: {fact_check}\nBias Check: {bias_check}"
         summaries.append(combined)
-        await task.queue.put({"type": "thinking", "text": summary})
-        await task.queue.put({"type": "thinking", "text": fact_check})
-        await task.queue.put({"type": "thinking", "text": bias_check})
+        for item in (summary, fact_check, bias_check):
+            await task.queue.put({"type": "thinking", "text": item})
+    return summaries
+
+
+async def _run(task_id: str) -> None:
+    task = tasks[task_id]
+    await task.queue.put({"type": "thinking", "text": f"Starting research on '{task.topic}'"})
+
+    crawler = WebCrawler()
+    connector = OpenAIConnector()
+    planner = SearchPlanner(connector)
+    searcher = GoogleSearch()
+    summarizer = Summarizer(connector)
+    validator = Validator(connector)
+    citation_mgr = CitationManager()
+
+    queries = await _generate_queries(task, planner)
+    urls = await _collect_urls(task, searcher, queries)
+    summaries = await _summarize_pages(
+        task_id, task, crawler, summarizer, validator, citation_mgr, urls
+    )
 
     report_gen = ReportGenerator(citation_mgr)
     task.result = report_gen.generate(summaries)

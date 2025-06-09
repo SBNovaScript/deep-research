@@ -9,5 +9,6 @@ dependencies = [
     "uvicorn",
     "aiohttp",
     "httpx<0.24",
-    "openai"
+    "openai",
+    "google-api-python-client"
 ]
