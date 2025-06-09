@@ -17,6 +17,7 @@ class ResearchTask:
     result: Optional[str] = None
 
 tasks: Dict[str, ResearchTask] = {}
+async_tasks: Dict[str, asyncio.Task] = {}
 
 
 async def _run(task_id: str) -> None:
@@ -50,7 +51,7 @@ async def _run(task_id: str) -> None:
 
 def start(task_id: str, topic: str) -> None:
     tasks[task_id] = ResearchTask(topic=topic)
-    asyncio.create_task(_run(task_id))
+    async_tasks[task_id] = asyncio.create_task(_run(task_id))
 
 def get_queue(task_id: str) -> Optional[asyncio.Queue]:
     task = tasks.get(task_id)
@@ -61,3 +62,13 @@ def get_queue(task_id: str) -> Optional[asyncio.Queue]:
 def get_result(task_id: str) -> Optional[str]:
     task = tasks.get(task_id)
     return task.result if task else None
+
+
+async def shutdown() -> None:
+    for task in async_tasks.values():
+        if not task.done():
+            task.cancel()
+    if async_tasks:
+        await asyncio.gather(*async_tasks.values(), return_exceptions=True)
+    async_tasks.clear()
+    tasks.clear()

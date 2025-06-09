@@ -15,6 +15,7 @@ This repository is structured as a monorepo containing both a web frontend and a
 - Comprehensive, citation-rich reports for any topic
 - Web-based interface for launching research tasks and viewing reports
 - Backend API orchestrates data collection and summarization
+- Configurable backend endpoint via `.env` using Vite's environment variables
 
 This project is in an early stage. Future updates will include plug-in submodules for source validation, bias detection, and more automated workflows.
 
@@ -32,6 +33,22 @@ This will start a development server at <http://localhost:5173>.
 
 The frontend uses React Router v7's data router API via the `react-router` package. Our
 routes are configured with `createBrowserRouter` and rendered by `RouterProvider`.
+
+=======
+### Configuring API Endpoint
+
+Vite exposes environment variables that start with `RESEARCH_` via
+`import.meta.env`. Copy `.env.example` in the `frontend` directory to `.env`
+and update the variables for your environment:
+
+```bash
+cd frontend
+cp .env.example .env
+# edit .env to point to your backend
+```
+
+The frontend uses `RESEARCH_API_URL` to determine where requests to the backend
+should be sent.
 
 ## Backend Development
 
