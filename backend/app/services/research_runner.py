@@ -23,7 +23,7 @@ async_tasks: Dict[str, asyncio.Task] = {}
 
 async def _run(task_id: str) -> None:
     task = tasks[task_id]
-    await task.queue.put({"message": f"Starting research on '{task.topic}'"})
+    await task.queue.put({"type": "thinking", "text": f"Starting research on '{task.topic}'"})
 
     crawler = WebCrawler()
     connector = OpenAIConnector()
@@ -35,25 +35,28 @@ async def _run(task_id: str) -> None:
     # First AI call: generate search queries
     queries = await planner.generate(task.topic)
     for q in queries:
-        await task.queue.put({"message": q})
+        await task.queue.put({"type": "thinking", "text": q})
 
     urls = ["https://example.com"]
+    for url in urls:
+        await task.queue.put({"type": "search", "url": url})
     pages = await crawler.crawl(task_id, urls)
     summaries: List[str] = []
     for url, text in pages:
         citation_mgr.add(url, text)
+        await task.queue.put({"type": "citation", "url": url})
         summary = await summarizer.summarize(text)
         fact_check = await validator.fact_check(summary)
         bias_check = await validator.bias_check(summary)
         combined = f"{summary}\n\nFact Check: {fact_check}\nBias Check: {bias_check}"
         summaries.append(combined)
-        await task.queue.put({"message": summary})
-        await task.queue.put({"message": fact_check})
-        await task.queue.put({"message": bias_check})
+        await task.queue.put({"type": "thinking", "text": summary})
+        await task.queue.put({"type": "thinking", "text": fact_check})
+        await task.queue.put({"type": "thinking", "text": bias_check})
 
     report_gen = ReportGenerator(citation_mgr)
     task.result = report_gen.generate(summaries)
-    await task.queue.put({"message": task.result})
+    await task.queue.put({"type": "final", "text": task.result})
     await task.queue.put(None)
 
 def start(task_id: str, topic: str) -> None:

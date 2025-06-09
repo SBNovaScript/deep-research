@@ -14,6 +14,29 @@ Once the request is accepted, the backend immediately begins crawling websites a
 - **Protocol:** Standard WebSocket that sends JSON messages as the backend gathers data and produces summaries.
 - **Usage:** The React frontend opens a WebSocket to this route to display real-time status and intermediate results.
 
+### Message Format
+
+Each WebSocket message is a JSON object with a `type` field describing the
+payload. Additional fields depend on the message category:
+
+- `thinking` – AI reasoning or status updates.
+  - `text` – content of the message.
+- `search` – the system is fetching a URL.
+  - `url` – address being visited.
+- `citation` – a page has been stored for later citation.
+  - `url` – source location.
+- `final` – the completed report.
+  - `text` – full summary text.
+
+Example messages:
+
+```json
+{ "type": "thinking", "text": "Generating search queries" }
+{ "type": "search", "url": "https://example.com" }
+{ "type": "citation", "url": "https://example.com" }
+{ "type": "final", "text": "<full report>" }
+```
+
 ## GET `/api/research/<id>`
 - **Description:** Retrieve the final consolidated research report.
 - **Response:** JSON object containing the completed summary, citations, and metadata.
