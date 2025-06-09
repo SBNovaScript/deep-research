@@ -8,6 +8,7 @@ from .summarizer import Summarizer
 from .citation_manager import CitationManager
 from .report_generator import ReportGenerator
 from .validator import Validator
+from .search_planner import SearchPlanner
 
 
 @dataclass
@@ -26,9 +27,15 @@ async def _run(task_id: str) -> None:
 
     crawler = WebCrawler()
     connector = OpenAIConnector()
+    planner = SearchPlanner(connector)
     summarizer = Summarizer(connector)
     validator = Validator(connector)
     citation_mgr = CitationManager()
+
+    # First AI call: generate search queries
+    queries = await planner.generate(task.topic)
+    for q in queries:
+        await task.queue.put({"message": q})
 
     urls = ["https://example.com"]
     pages = await crawler.crawl(task_id, urls)

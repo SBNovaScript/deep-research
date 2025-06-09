@@ -14,3 +14,8 @@ BIAS_CHECK_TEMPLATE = (
     "You are a bias detection AI. Identify any biased language or unfair"
     " assumptions in the following text. If none are present, reply 'No bias found.':\n{text}"
 )
+
+SEARCH_QUERY_TEMPLATE = (
+    "You are a skilled researcher. Given the following prompt, provide {n} exact Google search queries that would help gather information."
+    " List only the queries on separate lines.\nPrompt: {prompt}"
+)
