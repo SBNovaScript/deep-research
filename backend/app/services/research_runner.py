@@ -1,6 +1,12 @@
 import asyncio
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
+
+from .crawler import WebCrawler
+from .ai_connectors import EchoConnector
+from .summarizer import Summarizer
+from .citation_manager import CitationManager
+from .report_generator import ReportGenerator
 
 
 @dataclass
@@ -15,10 +21,23 @@ tasks: Dict[str, ResearchTask] = {}
 async def _run(task_id: str) -> None:
     task = tasks[task_id]
     await task.queue.put({"message": f"Starting research on '{task.topic}'"})
-    for i in range(1, 4):
-        await asyncio.sleep(0.1)
-        await task.queue.put({"message": f"Processing step {i} for '{task.topic}'"})
-    task.result = f"Summary for {task.topic}"
+
+    crawler = WebCrawler()
+    connector = EchoConnector()
+    summarizer = Summarizer(connector)
+    citation_mgr = CitationManager()
+
+    urls = ["https://example.com"]
+    pages = await crawler.crawl(task_id, urls)
+    summaries: List[str] = []
+    for url, text in pages:
+        citation_mgr.add(url, text)
+        summary = await summarizer.summarize(text)
+        summaries.append(summary)
+        await task.queue.put({"message": summary})
+
+    report_gen = ReportGenerator(citation_mgr)
+    task.result = report_gen.generate(summaries)
     await task.queue.put({"message": task.result})
     await task.queue.put(None)
 
