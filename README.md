@@ -31,6 +31,10 @@ npm run dev
 
 This will start a development server at <http://localhost:5173>.
 
+The frontend uses React Router v7's data router API via the `react-router` package. Our
+routes are configured with `createBrowserRouter` and rendered by `RouterProvider`.
+
+=======
 ### Configuring API Endpoint
 
 Vite exposes environment variables that start with `RESEARCH_` via
