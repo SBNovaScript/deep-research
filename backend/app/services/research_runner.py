@@ -7,6 +7,7 @@ from .ai_connectors import OpenAIConnector
 from .summarizer import Summarizer
 from .citation_manager import CitationManager
 from .report_generator import ReportGenerator
+from .validator import Validator
 
 
 @dataclass
@@ -25,6 +26,7 @@ async def _run(task_id: str) -> None:
     crawler = WebCrawler()
     connector = OpenAIConnector()
     summarizer = Summarizer(connector)
+    validator = Validator(connector)
     citation_mgr = CitationManager()
 
     urls = ["https://example.com"]
@@ -33,8 +35,13 @@ async def _run(task_id: str) -> None:
     for url, text in pages:
         citation_mgr.add(url, text)
         summary = await summarizer.summarize(text)
-        summaries.append(summary)
+        fact_check = await validator.fact_check(summary)
+        bias_check = await validator.bias_check(summary)
+        combined = f"{summary}\n\nFact Check: {fact_check}\nBias Check: {bias_check}"
+        summaries.append(combined)
         await task.queue.put({"message": summary})
+        await task.queue.put({"message": fact_check})
+        await task.queue.put({"message": bias_check})
 
     report_gen = ReportGenerator(citation_mgr)
     task.result = report_gen.generate(summaries)
