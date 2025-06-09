@@ -1,5 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
+import logging
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -11,4 +12,5 @@ def save_text(task_id: str, filename: str, text: str) -> Path:
     task_dir.mkdir(parents=True, exist_ok=True)
     path = task_dir / filename
     path.write_text(text, encoding="utf-8")
+    logging.getLogger(__name__).debug("Saved text to %s", path)
     return path

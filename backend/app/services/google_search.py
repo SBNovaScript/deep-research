@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import logging
 from typing import List, Set
 
 from googleapiclient.discovery import build
@@ -17,14 +18,18 @@ class GoogleSearch:
             raise ValueError("Google API key and CSE ID must be provided")
         self.per_query = per_query
         self.service = build("customsearch", "v1", developerKey=self.api_key, cache_discovery=False)
+        self.logger = logging.getLogger(__name__)
 
     def _sync_search(self, query: str) -> List[str]:
+        self.logger.debug("Searching Google for %s", query)
         result = (
             self.service.cse()
             .list(q=query, cx=self.cse_id, num=self.per_query)
             .execute()
         )
-        return [item["link"] for item in result.get("items", [])]
+        links = [item["link"] for item in result.get("items", [])]
+        self.logger.debug("Found %d links for %s", len(links), query)
+        return links
 
     async def _search(self, query: str) -> List[str]:
         return await asyncio.to_thread(self._sync_search, query)
@@ -37,4 +42,5 @@ class GoogleSearch:
                 if url not in seen:
                     seen.add(url)
                     results.append(url)
+        self.logger.info("Google search produced %d unique URLs", len(results))
         return results
