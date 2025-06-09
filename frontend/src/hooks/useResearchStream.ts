@@ -12,8 +12,10 @@ export default function useResearchStream(taskId: string) {
 
   useEffect(() => {
     if (!taskId) return;
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${protocol}://${window.location.host}/ws/research/${taskId}`);
+    const apiBase = import.meta.env.RESEARCH_API_URL || window.location.origin;
+    const url = new URL(`/api/ws/research/${taskId}`, apiBase);
+    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(url.toString());
     ws.onmessage = (event) => {
       const payload: StreamMessage = JSON.parse(event.data);
       switch (payload.type) {
