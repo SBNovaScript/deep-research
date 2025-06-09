@@ -28,3 +28,28 @@ npm run dev
 ```
 
 This will start a development server at <http://localhost:5173>.
+
+## Backend Development
+
+The backend now uses [uv](https://github.com/astral-sh/uv) for dependency
+management. `uv` is a fast drop-in replacement for the standard `pip` tooling
+that supports lockfiles and reproducible resolutions. From the `backend`
+directory install the requirements with:
+
+```bash
+cd backend
+uv pip install -r requirements.txt
+```
+
+To generate a lockfile and install from it later run:
+
+```bash
+uv lock
+uv sync
+```
+
+Then start the API with:
+
+```bash
+uvicorn app.main:app --reload
+```
