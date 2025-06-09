@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .ai_connectors import AIConnector
+from ..prompts import SUMMARY_TEMPLATE
 
 
 class Summarizer:
@@ -10,5 +11,5 @@ class Summarizer:
         self.connector = connector
 
     async def summarize(self, text: str) -> str:
-        prompt = f"Summarize the following text:\n{text[:500]}"
+        prompt = SUMMARY_TEMPLATE.format(text=text[:500])
         return await self.connector.complete(prompt)

@@ -10,6 +10,7 @@ This repository is structured as a monorepo containing both a web frontend and a
 - Integration with various AI services (e.g. OpenAI GPT-4o) for summarization and reasoning
 - Website scanning to gather data relevant to a research request
 - Fact-check and bias-check modules to ensure accurate and balanced summaries
+- Centralized prompt templates defining instructions for each AI task
 - Expansive research planning that links logical implications across sources
 - Comprehensive, citation-rich reports for any topic
 - Web-based interface for launching research tasks and viewing reports

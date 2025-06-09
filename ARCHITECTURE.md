@@ -36,24 +36,28 @@ This repository is organized as a monorepo that houses both a backend service an
    - Modular interface supporting multiple providers (e.g. OpenAI GPT-4o or other LLM APIs).
    - Each connector implements a unified method for sending prompts and receiving responses.
    - Enables easy integration of new AI models as they become available.
+5. **Prompt Templates**
+   - Centralized module defining the instructions used by AI services.
+   - Includes prompts for summarization, fact checking, and bias detection.
+   - Keeps the workflow consistent and makes it easy to adjust system behavior.
 
-5. **Summarization and Reasoning Engine**
+6. **Summarization and Reasoning Engine**
    - Orchestrates calls to AI services to summarize website content and synthesize findings.
    - Plans the research sections, tracks logical implications, and generates a coherent narrative.
    - Leverages asynchronous calls to AI endpoints to keep the workflow responsive.
-6. **Research Feedback Loop**
+7. **Research Feedback Loop**
    - After each summary pass, the reasoning engine can request deeper coverage of a sub-topic.
    - The crawler performs targeted searches and feeds new data back into the workflow.
 
-7. **Fact-Check and Bias-Check Modules**
+8. **Fact-Check and Bias-Check Modules**
    - Run collected information through separate AI models or heuristics to verify claims and identify bias.
    - Annotate summaries with notes on reliability or potential issues.
 
-8. **Citation Manager**
+9. **Citation Manager**
    - Maintains references to all sources gathered by the crawler.
    - Associates citations with summary sections, ensuring traceability of each statement.
 
-9. **Report Generator**
+10. **Report Generator**
    - Combines summarized sections, citations, and verification notes into a final document.
    - Supports multiple formats (e.g. Markdown or PDF) for export.
 
