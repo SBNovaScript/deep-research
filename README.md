@@ -30,6 +30,9 @@ npm run dev
 
 This will start a development server at <http://localhost:5173>.
 
+The frontend uses React Router v7's data router API via the `react-router` package. Our
+routes are configured with `createBrowserRouter` and rendered by `RouterProvider`.
+
 ## Backend Development
 
 The backend uses [uv](https://github.com/astral-sh/uv) for dependency
