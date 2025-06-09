@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Any, List
 
@@ -21,15 +22,21 @@ class ResearchTask:
 tasks: Dict[str, ResearchTask] = {}
 async_tasks: Dict[str, asyncio.Task] = {}
 
+logger = logging.getLogger(__name__)
+
 async def _generate_queries(task: ResearchTask, planner: SearchPlanner) -> List[str]:
+    logger.info("Generating search queries for topic '%s'", task.topic)
     queries = await planner.generate(task.topic)
+    logger.debug("Generated queries: %s", queries)
     for q in queries:
         await task.queue.put({"type": "thinking", "text": q})
     return queries
 
 
 async def _collect_urls(task: ResearchTask, searcher: GoogleSearch, queries: List[str]) -> List[str]:
+    logger.info("Collecting URLs for %d queries", len(queries))
     urls = await searcher.search_all(queries)
+    logger.debug("Collected URLs: %s", urls)
     for url in urls:
         await task.queue.put({"type": "search", "url": url})
     return urls
@@ -44,11 +51,13 @@ async def _summarize_pages(
     citation_mgr: CitationManager,
     urls: List[str],
 ) -> List[str]:
+    logger.info("Crawling and summarizing %d URLs", len(urls))
     pages = await crawler.crawl(task_id, urls)
     summaries: List[str] = []
     for url, text in pages:
         citation_mgr.add(url, text)
         await task.queue.put({"type": "citation", "url": url})
+        logger.debug("Summarizing %s", url)
         summary = await summarizer.summarize(text)
         fact_check = await validator.fact_check(summary)
         bias_check = await validator.bias_check(summary)
@@ -61,6 +70,7 @@ async def _summarize_pages(
 
 async def _run(task_id: str) -> None:
     task = tasks[task_id]
+    logger.info("Starting research task %s for topic '%s'", task_id, task.topic)
     await task.queue.put({"type": "thinking", "text": f"Starting research on '{task.topic}'"})
 
     crawler = WebCrawler()
@@ -83,6 +93,7 @@ async def _run(task_id: str) -> None:
     await task.queue.put(None)
 
 def start(task_id: str, topic: str) -> None:
+    logger.info("Queueing new research task %s", task_id)
     tasks[task_id] = ResearchTask(topic=topic)
     async_tasks[task_id] = asyncio.create_task(_run(task_id))
 
@@ -90,14 +101,19 @@ def get_queue(task_id: str) -> Optional[asyncio.Queue]:
     task = tasks.get(task_id)
     if task:
         return task.queue
+    logger.warning("Queue requested for unknown task %s", task_id)
     return None
 
 def get_result(task_id: str) -> Optional[str]:
     task = tasks.get(task_id)
-    return task.result if task else None
+    if task:
+        return task.result
+    logger.warning("Result requested for unknown task %s", task_id)
+    return None
 
 
 async def shutdown() -> None:
+    logger.info("Shutting down %d running tasks", len(async_tasks))
     for task in async_tasks.values():
         if not task.done():
             task.cancel()
@@ -105,3 +121,4 @@ async def shutdown() -> None:
         await asyncio.gather(*async_tasks.values(), return_exceptions=True)
     async_tasks.clear()
     tasks.clear()
+    logger.info("Shutdown complete")
