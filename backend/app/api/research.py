@@ -1,17 +1,17 @@
-from fastapi import APIRouter, WebSocket
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from uuid import uuid4
 from ..models.research import ResearchRequest, ResearchResponse
 from ..services import research_runner
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["research"])
 
-@router.post("/api/research", response_model=ResearchResponse)
+@router.post("/research", response_model=ResearchResponse)
 async def start_research(request: ResearchRequest) -> ResearchResponse:
     task_id = str(uuid4())
     research_runner.start(task_id, request.topic)
     return ResearchResponse(id=task_id)
 
-@router.get("/api/research/{task_id}", response_model=ResearchResponse)
+@router.get("/research/{task_id}", response_model=ResearchResponse)
 async def get_research(task_id: str) -> ResearchResponse:
     result = research_runner.get_result(task_id)
     return ResearchResponse(id=task_id, result=result)
@@ -24,9 +24,13 @@ async def research_ws(websocket: WebSocket, task_id: str):
         await websocket.send_json({"message": "Invalid task"})
         await websocket.close()
         return
-    while True:
-        message = await queue.get()
-        if message is None:
-            break
-        await websocket.send_json(message)
-    await websocket.close()
+    try:
+        while True:
+            message = await queue.get()
+            if message is None:
+                break
+            await websocket.send_json(message)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        await websocket.close()
