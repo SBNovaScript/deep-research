@@ -2,3 +2,4 @@ fastapi
 uvicorn
 aiohttp
 httpx<0.24
+openai

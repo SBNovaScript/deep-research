@@ -48,6 +48,13 @@ uv lock
 uv sync
 ```
 
+Set the `OPENAI_API_KEY` environment variable so the backend can authenticate
+with OpenAI:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+```
+
 Then start the API with:
 
 ```bash

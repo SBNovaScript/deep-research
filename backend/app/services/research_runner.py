@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional, Any, List
 
 from .crawler import WebCrawler
-from .ai_connectors import EchoConnector
+from .ai_connectors import OpenAIConnector
 from .summarizer import Summarizer
 from .citation_manager import CitationManager
 from .report_generator import ReportGenerator
@@ -23,7 +23,7 @@ async def _run(task_id: str) -> None:
     await task.queue.put({"message": f"Starting research on '{task.topic}'"})
 
     crawler = WebCrawler()
-    connector = EchoConnector()
+    connector = OpenAIConnector()
     summarizer = Summarizer(connector)
     citation_mgr = CitationManager()
 

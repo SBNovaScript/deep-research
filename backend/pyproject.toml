@@ -8,5 +8,6 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "aiohttp",
-    "httpx<0.24"
+    "httpx<0.24",
+    "openai"
 ]
