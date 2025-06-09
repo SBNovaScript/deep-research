@@ -2,6 +2,9 @@
 
 This repository contains a custom deep research implementation designed to connect to multiple AI services. It collects data from the web based on a user-provided research topic, analyzes the information with diverse AI models, and produces citation-driven summaries. The system is intended to build a coherent research report that goes beyond normal LLM limitations by planning and summarizing each section strategically.
 
+This repository is structured as a monorepo containing both a web frontend and a backend API. The `frontend` directory hosts the user interface, while the `backend` directory handles data collection and AI processing. These components work together to provide an integrated research assistant.
+
+
 ## Features
 
 - Integration with various AI services (e.g. OpenAI GPT-4o) for summarization and reasoning
@@ -9,5 +12,7 @@ This repository contains a custom deep research implementation designed to conne
 - Fact-check and bias-check modules to ensure accurate and balanced summaries
 - Expansive research planning that links logical implications across sources
 - Comprehensive, citation-rich reports for any topic
+- Web-based interface for launching research tasks and viewing reports
+- Backend API orchestrates data collection and summarization
 
 This project is in an early stage. Future updates will include plug-in submodules for source validation, bias detection, and more automated workflows.
