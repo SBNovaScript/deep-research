@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-aiohttp
 httpx<0.24
 openai
 google-api-python-client
+playwright
