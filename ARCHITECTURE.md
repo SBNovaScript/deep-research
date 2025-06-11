@@ -28,8 +28,8 @@ This repository is organized as a monorepo that houses both a backend service an
    - Allows users to submit research requests and view results in the browser.
    - Receives streamed data from the backend API for seamless interaction.
 3. **Web Crawler and Data Collector**
-   - Uses `aiohttp` for asynchronous HTTP requests to gather webpages quickly.
-   - Extracts relevant text and metadata from each page.
+   - Uses `playwright` to control a headless browser, mimicking user behavior.
+   - Waits for pages (and any redirects) to fully load before extracting HTML.
    - Saves raw content for later reference and citation.
 
 4. **AI Service Connectors**
